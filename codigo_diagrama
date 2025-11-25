@@ -1,0 +1,94 @@
+public abstract class Usuario {
+    protected String nome;
+    protected String cpf;
+    protected String email;
+    protected String senha;
+
+    // Métodos comuns a todos
+    public void fazerLogin(String email, String senha) { ... }
+    public void recuperarSenha() { ... }
+}
+
+public class Coper extends Usuario {
+    private String departamento;
+    private String cargo;
+
+    // Construtor
+    public Coper(String nome, String cpf, String email) {
+        super(nome, cpf, email);
+    }
+
+    // --- Métodos de Sistema (Antigo Admin) ---
+    public void cadastrarUsuario(Usuario novoUsuario) { ... }
+    public void gerenciarPermissoes() { ... }
+
+    // --- Métodos Operacionais ---
+    public void cadastrarCampanha(Campanha novaCampanha) { ... }
+    
+    // O Coper valida, a Doação é passiva
+    public void validarDoacao(Doacao doacao, StatusDoacao status, String obs) {
+        doacao.atualizarStatus(status, obs);
+    }
+
+    public void gerarRelatorio() { ... }
+}
+
+public class Aluno extends Usuario {
+    private String matricula;
+    private String curso;
+    private float saldoHoras;
+
+    // Relacionamento: Aluno tem lista de doações
+    private List<Doacao> minhasDoacoes; 
+
+    public void registrarDoacao(Doacao doacao) {
+        this.minhasDoacoes.add(doacao);
+    }
+
+    public void baixarComprovante(Doacao doacao) {
+        if(doacao.getStatus() == StatusDoacao.APROVADA) {
+            // Lógica de download
+        }
+    }
+}
+
+public class Campanha {
+    private String titulo;
+    private Date dataLimite;
+    private boolean ativa;
+    
+    // Associação: Campanha "tem" itens
+    private List<ItemPrioritario> itensPrioritarios; 
+
+    public void verificarVigencia() { ... }
+}
+
+public class ItemPrioritario {
+    private String nome;
+    private int meta;
+    // Enum para urgência (Alta, Média)
+    private Urgencia urgencia; 
+}
+
+public enum StatusDoacao {
+    PENDENTE, APROVADA, REPROVADA
+}
+
+public class Doacao {
+    private Date data;
+    private StatusDoacao status;
+    private String motivoReprovacao;
+    private byte[] fotoEvidencia; // Blob
+    
+    // Composição: Doação TEM um Comprovante
+    private Comprovante comprovante; 
+
+    public void atualizarStatus(StatusDoacao novoStatus, String motivo) {
+        this.status = novoStatus;
+        if(novoStatus == StatusDoacao.REPROVADA) {
+            this.motivoReprovacao = motivo;
+        } else if (novoStatus == StatusDoacao.APROVADA) {
+            this.comprovante = new Comprovante(); // Gera o comprovante
+        }
+    }
+}
